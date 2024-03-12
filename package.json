@@ -1,10 +1,10 @@
 {
-  "name": "vite-trello-web-base-project",
+  "name": "trello-web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "author": "TrungQuanDev - Một Lập Trình Viên",
-  "description": "https://youtube.com/@trungquandev",
+  "author": "Tanhoccode",
+  "description": "",
   "engines": {
     "node": "18.16.0"
   },
@@ -29,3 +29,4 @@
     "vite": "^4.3.2"
   }
 }
+   
