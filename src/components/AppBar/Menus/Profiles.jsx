@@ -33,7 +33,7 @@ function Profiles() {
           aria-haspopup="true"
           aria-expanded={open ? 'true' : undefined}
         >
-          <Avatar sx={{ width: 30, height: 30 }}
+          <Avatar sx={{ width: 40, height: 40 }}
             T
             alt='NguyenMinhTan'
             src = "file:///C:/Users/tanpr/OneDrive/Pictures/avt.jpg"
