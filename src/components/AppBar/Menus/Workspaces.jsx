@@ -11,7 +11,7 @@ import ContentPaste from '@mui/icons-material/ContentPaste'
 import ContentCut from '@mui/icons-material/ContentCut'
 import Cloud from '@mui/icons-material/Cloud'
 import Divider from '@mui/material/Divider'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 function Workspaces() {
   const [anchorEl, setAnchorEl] = React.useState(null)

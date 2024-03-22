@@ -15,7 +15,7 @@ const MenuSlyte = {
   // borderColor : 'white',
   bgcolor : 'transparent',
   color: 'white',
-   border : 'none',
+  border : 'none',
   paddingX : '5px',
   borderRadius : '4px',
   '& .MuiSvgIcon-root': {
@@ -92,7 +92,10 @@ function BoardBar() {
               width : 45,
               height : 45,
               fontSize : 20,
-              border : 'none'
+              border : 'none',
+              color : 'white',
+              cursor : 'pointer',
+              '&:first-of-type' : {bgcolor : '#a4b0be' }
             }
           }}
         >
