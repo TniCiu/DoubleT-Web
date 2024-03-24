@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import ModeSelect from '~/components/ModeSelect'
+import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import Box from '@mui/material/Box'
 import AppsIcon from '@mui/icons-material/Apps'
 import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
@@ -22,7 +22,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 
 function AppBar() {
-  const [searchValue , setSearchValue] = useState('')
+  const [searchValue, setSearchValue] = useState('')
   return (
     <Box px = {2} sx = {{
       width :'100%',
