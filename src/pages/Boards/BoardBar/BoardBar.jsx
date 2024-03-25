@@ -10,6 +10,7 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import {capitalizeFirstLetter} from '~/utils/formatters'
 
 const MenuSlyte = {
   // borderColor : 'white',
@@ -26,7 +27,8 @@ const MenuSlyte = {
   }
 }
 
-function BoardBar() {
+function BoardBar({board}) {
+
   return (
     <Box px = {2} sx = {{
       width :'100%',
@@ -43,13 +45,13 @@ function BoardBar() {
         <Chip
           sx = {MenuSlyte}
           icon={<DashboardIcon />}
-          label="NguyenMinhTan"
+          label= {board?.title}
           clickable
         />
         <Chip
           sx = {MenuSlyte}
           icon={<LockIcon />}
-          label="Public/Private WorkSpace"
+          label={capitalizeFirstLetter(board?.type)}
           clickable
         />
         <Chip
