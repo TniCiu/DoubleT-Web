@@ -1,5 +1,3 @@
-//tincui012
-//JEieHKKFOskM8AlP  
 
 const MONGODB_URI = 'mongodb+srv://tincui012:Tin2003@cluster0-tniciu.zokbtjy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-TniCiu'
 
@@ -25,11 +23,19 @@ export const CONNECT_DB = async () =>{
 
     // kết nối thành công thì lấy ra database theo tên và gán ngược nó lại biến DoubleTDatabaseInstance ở trên 
     DoubleTDatabaseInstance = mongoClientInstance.db(DATABASE_NAME)
+
 }
 
+// Đóng kết nối tới Database khi cần 
+export const CLOSE_DB = async () => {
+
+    await mongoClientInstance.close()
+
+}
 
 // lưu ý phải đảm bảo chỉ luôn gọi cái getdb này sau khi đã kết nối thành công tới mongodb
 export const GET_DB = () =>{
     if(!DoubleTDatabaseInstance) throw new Error('Must connect to Database first!')
     return DoubleTDatabaseInstance
 }
+
