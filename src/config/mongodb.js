@@ -1,15 +1,12 @@
-
-const MONGODB_URI = 'mongodb+srv://tincui012:Tin2003@cluster0-tniciu.zokbtjy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-TniCiu'
-
-const DATABASE_NAME ='DoubleT-TniCiu'
-
 import { MongoClient,ServerApiVersion } from 'mongodb'
+import {env} from '~/config/environment'
+
 
 // Khởi tạo một đối tượng DoubleTDatabaseInstance ban đầu là null (vì tôi chưa connect)
 let DoubleTDatabaseInstance = null
 
 // Khởi tạo một đối tượng mongoClientInstance để connect tới MongoDB
-const mongoClientInstance = new MongoClient(MONGODB_URI,{
+const mongoClientInstance = new MongoClient(env.MONGODB_URI,{
     // ServerApi: {
     //     version: ServerApiVersion.v1,
     //     strict: true,
@@ -22,7 +19,7 @@ export const CONNECT_DB = async () =>{
     await mongoClientInstance.connect()
 
     // kết nối thành công thì lấy ra database theo tên và gán ngược nó lại biến DoubleTDatabaseInstance ở trên 
-    DoubleTDatabaseInstance = mongoClientInstance.db(DATABASE_NAME)
+    DoubleTDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
 
 }
 
