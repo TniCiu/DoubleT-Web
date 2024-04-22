@@ -7,17 +7,18 @@ const createdNew = async (reqBody) => {
     
         const newBoard = {
             ...reqBody,
-            sluq: slugify(reqBody.title)
+            slug: slugify(reqBody.title)
+            // title:'test gắn mặc dịnh val'
         }
 
 
     // Gọi tới tầng Model để xử lý lưu bản ghi newBoard vào trong Database 
     const createdBoard = await boardModel.createdNew(newBoard)
-    console.log(createdBoard)
+    // console.log(createdBoard)
 
     // Lấy bản ghi board sau khi gọi 
     const getNewBoard = await boardModel.findOneById(createdBoard.insertedId)
-    console.log(getNewBoard)
+    // console.log(getNewBoard)
     // Làm thêm các xử lý logic với các Collection khác tùy đặc thủ đồ án  
     // Notification về cho admin khi có 1 cái Board mới được tạo 
 
