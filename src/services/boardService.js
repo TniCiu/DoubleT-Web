@@ -1,5 +1,5 @@
 import { slugify } from "~/utils/formatters"
-
+import { boardModel } from "~/models/boardModel"
 
 const createdNew = async (reqBody) => {
     try {  
@@ -12,14 +12,18 @@ const createdNew = async (reqBody) => {
 
 
     // Gọi tới tầng Model để xử lý lưu bản ghi newBoard vào trong Database 
-    // ...
-    
+    const createdBoard = await boardModel.createdNew(newBoard)
+    console.log(createdBoard)
+
+    // Lấy bản ghi board sau khi gọi 
+    const getNewBoard = await boardModel.findOneById(createdBoard.insertedId)
+    console.log(getNewBoard)
     // Làm thêm các xử lý logic với các Collection khác tùy đặc thủ đồ án  
     // Notification về cho admin khi có 1 cái Board mới được tạo 
 
 
     // Trả kết quả về trong Service 
-      return newBoard
+      return getNewBoard
     } catch (error) {throw error }
 
 }   
