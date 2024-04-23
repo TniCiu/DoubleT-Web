@@ -11,6 +11,7 @@ const START_SERVER = () => {
   const app = express()
 
   app.use(cors(corsOptions))
+  
   // Bật req.body dữ liệu json
   app.use(express.json())
 
