@@ -24,7 +24,6 @@ const getDetails = async (req, res, next) => {
 
         const board = await boardService.getDetails(boardId)
 
-
         // Có kết quả thì trả về phía Client 
         res.status(StatusCodes.OK).json(board)
         
