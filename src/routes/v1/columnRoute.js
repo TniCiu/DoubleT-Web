@@ -9,5 +9,8 @@ Router.route('/')
     .post(columnValidation.createNew, columnController.createNew)
 
 
+Router.route('/:id')
+.get(columnController.getDetails)
+.put(columnValidation.update,columnController.update)
 
 export const columnRoute = Router

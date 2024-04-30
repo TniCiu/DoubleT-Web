@@ -1,6 +1,19 @@
 import { StatusCodes } from 'http-status-codes'
 import { boardService } from '~/services/boardService'
 
+const getAll = async (req, res, next) => {
+    try {
+        // Gọi hàm từ service để lấy danh sách các bảng
+        const boards = await boardService.getAll()
+
+        // Trả về danh sách các bảng dưới dạng JSON
+        res.status(StatusCodes.OK).json(boards)
+    } catch (error) {
+        // Nếu có lỗi, chuyển tiếp lỗi tới middleware xử lý lỗi tiếp theo
+        next(error)
+    }
+}
+
 const createNew = async (req, res, next) => {
     try {
         // console.log('req.body:',req.body)
@@ -30,9 +43,31 @@ const getDetails = async (req, res, next) => {
     } catch (error) { next(error) }
 
 }
+const update = async (req, res, next) => {
+    try {
+        const boardId = req.params.id
 
+        const updateBoard = await boardService.update(boardId,req.body)
 
+        // Có kết quả thì trả về phía Client 
+        res.status(StatusCodes.OK).json(updateBoard)
+    } catch (error) { next(error) }
+
+}
+
+const moveCardToDifferentColumn = async (req, res, next) => {
+    try {
+
+        const result = await boardService.moveCardToDifferentColumn(req.body)
+        // Có kết quả thì trả về phía Client 
+        res.status(StatusCodes.OK).json(result)
+    } catch (error) { next(error) }
+
+}
 export const boardController = {
+    getAll,
     createNew,
-    getDetails
+    getDetails,
+    update,
+    moveCardToDifferentColumn
 }

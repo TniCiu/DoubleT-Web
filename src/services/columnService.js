@@ -1,6 +1,16 @@
 import { columnModel } from "~/models/columnModel"
 import { boardModel } from "~/models/boardModel"
 
+const getDetails = async (columnId) => {
+    try {  
+    const column = await columnModel.findOneById(columnId)
+    if(!column){
+        throw new ApiError(StatusCodes.NOT_FOUND, 'Column not found !')
+    }
+    return column
+    } catch (error) {throw error }
+
+}  
 const createdNew = async (reqBody) => {
     try {  
         const newColumn = {
@@ -24,9 +34,25 @@ const createdNew = async (reqBody) => {
 
 }   
 
-   
+const update = async (columnId,reqBody) => {
+    try {  
+    const updateData= {
+        ...reqBody,
+        updatedAt: Date.now()
+    
+    }
+    const updatedColumn = await columnModel.update(columnId,updateData)
+    
+
+    return updatedColumn
+    } catch (error) {throw error }
+
+}  
  
 
 export const columnService = {
-    createdNew
+    createdNew,
+    update,
+    getDetails
+
 }

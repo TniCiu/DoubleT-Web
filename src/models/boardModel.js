@@ -15,7 +15,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
     type: Joi.string().valid('public', 'private').required(),
 
 
-    columOrderIds: Joi.array().items(
+    columnOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
     ).default([]),
 
@@ -25,10 +25,20 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
 
 })
 
+const INVALID_UPDATE_FIELDS = ['_id','createdAt']
+
 const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
-
+const getAll = async () => {
+  try {
+      // Thực hiện truy vấn cơ sở dữ liệu để lấy tất cả các bảng
+      const boards = await GET_DB().collection(BOARD_COLLECTION_NAME).find({}).toArray()
+      return boards
+  } catch (error) {
+      throw new Error(error)
+  }
+}
 const createdNew = async (data) => {
     try {
       const validData = await validateBeforeCreate(data)
@@ -78,19 +88,37 @@ const pushColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(column.boardId) },
-      { $push: { columOrderIds:new ObjectId(column._id) } },
-      { ReturnDocument: 'after'}
+      { $push: { columnOrderIds:new ObjectId(column._id) } },
+      { returnDocument: 'after'}
     )
-    return result.value || null
+    return result
   } catch (error) {throw new Error(error)}
 }
+const update = async (boardId,updateData) => {
 
+  try {
+    Object.keys(updateData).forEach(filedName =>{
+      if(INVALID_UPDATE_FIELDS.includes(filedName)){
+        delete updateData[filedName]
+      }
+    })
+    console.log('updateData',updateData)
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(boardId) },
+      { $set:  updateData },
+      { returnDocument: 'after'}
+    )
+    return result
+  } catch (error) {throw new Error(error)}
+}
 export const boardModel = {
     BOARD_COLLECTION_NAME,
     BOARD_COLLECTION_SCHEMA,
+    getAll,
     createdNew,
     findOneById,
     getDetails,
-    pushColumnOrderIds
+    pushColumnOrderIds,
+    update
 }
 
