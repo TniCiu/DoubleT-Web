@@ -77,6 +77,35 @@ const update = async (boardId,reqBody) => {
     } catch (error) {throw error }
 
 }
+const deleteBoard = async (boardId) => {
+    try {
+        // Tìm và xóa board theo id
+        const deletedBoard = await boardModel.deleteOneById(boardId)
+
+        if (!deletedBoard) {
+            throw new Error('Board not found!')
+        }
+
+        // Tìm và lấy tất cả các cột thuộc về board này
+        const columns = await columnModel.findByBoardId(boardId)
+
+        if (!columns || columns.length === 0) {
+            console.log('Board deleted successfully, but no columns found!')
+            return { deleteResult: 'Board deleted successfully, but no columns found!' }
+            
+        }
+
+        for (const column of columns) {
+            await cardModel.deleteManyByColumnId(column._id)
+        }
+
+        // Xóa tất cả các cột thuộc về board
+        await columnModel.deleteManyByBoardId(boardId)
+
+        console.log('Board, Columns, and Cards deleted successfully!');
+        return { deleteResult: 'Board, Columns, and Cards deleted successfully!' }
+    } catch (error) { throw error }
+}
 
 const moveCardToDifferentColumn = async (reqBody) => {
     try {  
@@ -101,10 +130,21 @@ const moveCardToDifferentColumn = async (reqBody) => {
     } catch (error) {throw error }
 
 }
+const getUserBoards = async (ownerIds) => {
+    try {
+        const boards = await boardModel.getUserBoards(ownerIds);
+        return boards;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const boardService = {
     getAll,
     createdNew,
     getDetails,
     update,
-    moveCardToDifferentColumn
+    moveCardToDifferentColumn,
+    deleteBoard,
+    getUserBoards
 }

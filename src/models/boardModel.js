@@ -14,6 +14,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
     description: Joi.string().required().min(3).max(256).trim().strict(),
     type: Joi.string().valid('public', 'private').required(),
 
+    ownerIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+    memberIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
 
     columnOrderIds: Joi.array().items(
         Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
@@ -40,12 +42,22 @@ const getAll = async () => {
   }
 }
 const createdNew = async (data) => {
-    try {
-      const validData = await validateBeforeCreate(data)
+  try {
+      const validData = await validateBeforeCreate(data);
 
-      return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
-    } catch (error) { throw new Error(error) }
+      // Chuyển đổi ownerIds từ string sang ObjectId nếu có
+      if (validData.ownerIds && validData.ownerIds.length > 0) {
+          validData.ownerIds = validData.ownerIds.map(ownerId => new ObjectId(ownerId));
+      }
+
+
+      return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData);
+  } catch (error) {
+      throw new Error(error);
+  }
 }
+
+
 
 const findOneById = async (id) =>{
     try {
@@ -94,6 +106,17 @@ const pushColumnOrderIds = async (column) => {
     return result
   } catch (error) {throw new Error(error)}
 }
+const pullColumnOrderIds = async (column) => {
+
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(column.boardId) },
+      { $pull: { columnOrderIds:new ObjectId(column._id) } },
+      { returnDocument: 'after'}
+    )
+    return result
+  } catch (error) {throw new Error(error)}
+}
 const update = async (boardId,updateData) => {
 
   try {
@@ -102,7 +125,19 @@ const update = async (boardId,updateData) => {
         delete updateData[filedName]
       }
     })
-    console.log('updateData',updateData)
+     // Kiểm tra và chuyển đổi ownerId thành một mảng ObjectId nếu nó không phải là mảng
+     if (updateData.ownerIds && !Array.isArray(updateData.ownerIds)) {
+      updateData.ownerIds = [updateData.ownerIds];
+    }
+
+    // Chuyển đổi ownerId thành ObjectId trong mảng nếu nó tồn tại
+    if (updateData.ownerIds) {
+      updateData.ownerIds = updateData.ownerIds.map(ownerId => new ObjectId(ownerId));
+    }
+
+    if(updateData.columnOrderIds){
+      updateData.columnOrderIds = updateData.columnOrderIds.map(_id => new ObjectId(_id))
+    }
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(boardId) },
       { $set:  updateData },
@@ -111,6 +146,58 @@ const update = async (boardId,updateData) => {
     return result
   } catch (error) {throw new Error(error)}
 }
+const deleteOneById = async (boardId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).deleteOne({
+      _id: new ObjectId(boardId)
+    });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+const getUserBoards = async (ownerIds) => {
+  try {
+    // Chuyển ownerIds thành một mảng nếu nó không phải là mảng
+    if (!Array.isArray(ownerIds)) {
+      ownerIds = [ownerIds];
+    }
+    console.log("ownerIds:", ownerIds);
+
+    // Truy vấn cơ sở dữ liệu sử dụng mảng các ObjectId đã chuyển đổi
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      {
+        $match: {
+          ownerIds: { $in: ownerIds.map(id => new ObjectId(id)) },
+          _destroy: false
+        }
+      },
+      {
+        $lookup: {
+          from: columnModel.COLUMN_COLLECTION_NAME,
+          localField: '_id',
+          foreignField: 'boardId',
+          as: 'columns'
+        }
+      },
+      {
+        $lookup: {
+          from: cardModel.CARD_COLLECTION_NAME,
+          localField: '_id',
+          foreignField: 'boardId',
+          as: 'cards'
+        }
+      }
+    ]).toArray();
+    
+    return result;
+  } catch (error) {
+    console.error("Error in getUserBoards:", error); // Ghi log nếu có lỗi xảy ra
+    throw error;
+  }
+}
+
+
 export const boardModel = {
     BOARD_COLLECTION_NAME,
     BOARD_COLLECTION_SCHEMA,
@@ -119,6 +206,9 @@ export const boardModel = {
     findOneById,
     getDetails,
     pushColumnOrderIds,
-    update
+    update,
+    pullColumnOrderIds,
+    deleteOneById,
+    getUserBoards
 }
 

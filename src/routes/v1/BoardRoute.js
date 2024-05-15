@@ -7,14 +7,16 @@ import { boardController } from '~/controllers/boardController'
 const Router = express.Router()
 
 Router.route('/')
-    
     .get(boardController.getAll)
     .post(boardValidation.createNew, boardController.createNew)
+
+Router.route('/Users/:ownerIds')
+    .get(boardController.getUserBoards)
 
 Router.route('/:id')
     .get(boardController.getDetails)
     .put(boardValidation.update,boardController.update)
-
+    .delete(boardValidation.deleteBoard,boardController.deleteBoard)
 
 //API hỗ trợ cho việc di chuyển card giữa các column khác nhau trong 1 board
 Router.route('/supports/moving_cards')

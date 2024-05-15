@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { boardService } from '~/services/boardService'
-
+import { boardModel } from '~/models/boardModel'
 const getAll = async (req, res, next) => {
     try {
         // Gọi hàm từ service để lấy danh sách các bảng
@@ -55,6 +55,18 @@ const update = async (req, res, next) => {
 
 }
 
+const deleteBoard = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Gọi hàm xóa board từ service hoặc repository
+        const result = await boardService.deleteBoard(id)
+        res.status(StatusCodes.OK).json(result) // Trả về mã trạng thái 204 - No Content nếu xóa thành công
+    } catch (error) {
+        console.error('Error deleting board:', error)
+        res.sendStatus(StatusCodes.INTERNAL_SERVER_ERROR) // Trả về mã trạng thái 500 - Internal Server Error nếu có lỗi xảy ra
+    }
+}
+
 const moveCardToDifferentColumn = async (req, res, next) => {
     try {
 
@@ -64,10 +76,31 @@ const moveCardToDifferentColumn = async (req, res, next) => {
     } catch (error) { next(error) }
 
 }
+
+const getUserBoards = async (req, res) => {
+    let ownerIds = req.params.ownerIds; // Lấy giá trị của ownerIds từ req.params
+    console.log(ownerIds);
+
+    // Chuyển ownerIds thành một mảng nếu nó không phải là mảng
+    if (!Array.isArray(ownerIds)) {
+        ownerIds = [ownerIds];
+    }
+    try {
+        const boards = await boardService.getUserBoards(ownerIds);
+        res.status(200).json(boards);
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+
 export const boardController = {
     getAll,
     createNew,
     getDetails,
     update,
-    moveCardToDifferentColumn
+    moveCardToDifferentColumn,
+    deleteBoard,
+    getUserBoards
 }

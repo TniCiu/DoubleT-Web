@@ -46,6 +46,15 @@ const findOneById = async (id) =>{
       return result
     } catch (error) {throw new Error(error)}
 }
+const findByBoardId = async (boardId) => {
+  try {
+      const db = GET_DB();
+      const columns = await db.collection(COLUMN_COLLECTION_NAME).find({ boardId: new ObjectId(boardId) }).toArray();
+      return columns
+  } catch (error) {
+      throw new Error(error)
+  }
+}
 const pushCardOrderIds = async (card) => {
 
   try {
@@ -66,7 +75,10 @@ const update = async (columnId,updateData) => {
         delete updateData[filedName]
       }
     })
-    console.log('updateData',updateData)
+
+    if(updateData.cardOrderIds){
+      updateData.cardOrderIds = updateData.cardOrderIds.map(_id => new ObjectId(_id))
+    }
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(columnId) },
       { $set:  updateData },
@@ -75,11 +87,33 @@ const update = async (columnId,updateData) => {
     return result
   } catch (error) {throw new Error(error)}
 }
+
+const deleteOneById = async (columnId) =>{
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteOne({
+      _id: new ObjectId(columnId)
+    })
+    return result
+  } catch (error) {throw new Error(error)}
+}
+
+const deleteManyByBoardId = async (boardId) =>{
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteMany({
+      boardId: new ObjectId(boardId)
+    })
+    return result
+  } catch (error) {throw new Error(error)}
+}
+
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
   createdNew,
   findOneById,
+  findByBoardId,
   pushCardOrderIds,
   update,
+  deleteOneById,
+  deleteManyByBoardId
 }

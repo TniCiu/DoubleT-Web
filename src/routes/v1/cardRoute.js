@@ -9,5 +9,4 @@ Router.route('/')
     .post(cardValidation.createNew, cardController.createNew)
 
 
-
 export const cardRoute = Router

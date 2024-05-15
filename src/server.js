@@ -2,21 +2,21 @@ import express from 'express'
 import cors from 'cors'
 import { corsOptions } from './config/cors'
 import exitHook from 'async-exit-hook'
-import { CONNECT_DB,CLOSE_DB } from '~/config/mongodb'
-import {env} from '~/config/environment'
-import {APIs_V1} from '~/routes/v1'
+import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
+import { env } from '~/config/environment'
+import { APIs_V1 } from '~/routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 
 const START_SERVER = () => {
   const app = express()
 
   app.use(cors(corsOptions))
-  
-  // Bật req.body dữ liệu json
-  app.use(express.json())
+
+  // Bật req.body dữ liệu json và giới hạn kích thước là 50MB
+  app.use(express.json({ limit: '50mb' }))
 
   // Sử dụng APIs v1
-  app.use('/v1',APIs_V1 )
+  app.use('/v1', APIs_V1)
 
   // Middleware xử lý lỗi tập trung 
   app.use(errorHandlingMiddleware)
@@ -36,14 +36,14 @@ const START_SERVER = () => {
 
 // Chỉ khi kết nối tới Database thành công mới Start Server Back-end lên.
 (async () => {
-  try{
+  try {
     console.log('1. Connecting to MongoDB Cloud Atlas...')
     await CONNECT_DB()
     console.log('2. Connected to MongoDB Cloud Atlas!')
-    
+
     //Khởi tạo Server Back-end sau khi đã Connect Database thành công
     START_SERVER()
-  } catch(error) {
+  } catch (error) {
     console.error(error)
     process.exit(0)
   }
