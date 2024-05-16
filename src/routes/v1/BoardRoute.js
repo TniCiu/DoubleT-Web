@@ -12,6 +12,9 @@ Router.route('/')
 
 Router.route('/Users/:ownerIds')
     .get(boardController.getUserBoards)
+    
+Router.route('/:id/members')
+    .get(boardController.getBoardMembersInfo);
 
 Router.route('/:id')
     .get(boardController.getDetails)

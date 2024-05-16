@@ -80,14 +80,19 @@ const getUserWithBoards = async (userId) => {
         if (!user) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!');
         }
-        
-        // Lấy thông tin của các boards mà người dùng đã tạo hoặc tham gia từ boardModel
+
+        // Lấy danh sách các boards mà người dùng đã tạo hoặc tham gia từ boardModel
         const userBoards = await boardModel.getUserBoards(userId);
+
+        // Lọc danh sách các boards để chỉ bao gồm những boards mà userId là chủ sở hữu hoặc là thành viên
+        const filteredBoards = userBoards.filter(board => {
+            return board.ownerIds.includes(userId) || board.memberIds.includes(userId);
+        });
 
         // Kết hợp thông tin của người dùng và các boards và trả về
         const userDataWithBoards = {
             ...user,
-            boards: userBoards
+            boards: filteredBoards
         };
 
         return userDataWithBoards;
@@ -95,6 +100,7 @@ const getUserWithBoards = async (userId) => {
         throw error;
     }
 };
+
 
 export const userService = {
     loginUser,

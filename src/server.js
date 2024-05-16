@@ -7,6 +7,9 @@ import { env } from '~/config/environment'
 import { APIs_V1 } from '~/routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 
+import dotenv from 'dotenv';
+
+dotenv.config();
 const START_SERVER = () => {
   const app = express()
 

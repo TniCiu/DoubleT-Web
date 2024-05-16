@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { boardService } from '~/services/boardService'
 import { boardModel } from '~/models/boardModel'
+import { userModel } from '~/models/userModel'
 const getAll = async (req, res, next) => {
     try {
         // Gọi hàm từ service để lấy danh sách các bảng
@@ -79,7 +80,6 @@ const moveCardToDifferentColumn = async (req, res, next) => {
 
 const getUserBoards = async (req, res) => {
     let ownerIds = req.params.ownerIds; // Lấy giá trị của ownerIds từ req.params
-    console.log(ownerIds);
 
     // Chuyển ownerIds thành một mảng nếu nó không phải là mảng
     if (!Array.isArray(ownerIds)) {
@@ -92,7 +92,59 @@ const getUserBoards = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+const shortenBase64 = (base64String) => {
+    try {
+        if (!base64String) {
+            return ""; // Trả về chuỗi trống nếu base64String không tồn tại
+        }
+        // Lấy một phần của base64String (ví dụ: 10 ký tự đầu và cuối)
+        const shortenedString = base64String.substring(0, 10) + '...' + base64String.substring(base64String.length - 10);
+        return shortenedString;
+    } catch (error) {
+        console.error("Error in shortenBase64 function:", error);
+        throw new Error("Error in shortenBase64 function");
+    }
+};
 
+
+// Sử dụng hàm shortenBase64 để rút gọn avatar base64
+const getBoardMembersInfo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const board = await boardModel.findOneById(id);
+        if (!board) {
+            return res.status(404).json({ message: "Board not found" });
+        }
+
+       
+
+        const members = [];
+        for (const memberId of board.memberIds) {
+            const member = await userModel.getUserDetails(memberId);
+            if (member) {
+                members.push({
+                    _id: member._id,
+                    email: member.email,
+                    username: member.username,
+                    avatar: member.avatar // Rút gọn base64 ở đây
+                });
+            }
+        }
+
+        return res.status(200).json({
+            board: {
+                _id: board._id,
+                title: board.title,
+                description: board.description,
+                type: board.type,
+                members
+            }
+        });
+    } catch (error) {
+        console.error("Error in getBoardInfo function:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
 
 
 export const boardController = {
@@ -102,5 +154,6 @@ export const boardController = {
     update,
     moveCardToDifferentColumn,
     deleteBoard,
-    getUserBoards
+    getUserBoards,
+    getBoardMembersInfo
 }

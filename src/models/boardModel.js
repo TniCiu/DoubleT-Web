@@ -58,7 +58,6 @@ const createdNew = async (data) => {
 }
 
 
-
 const findOneById = async (id) =>{
     try {
       const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
@@ -134,7 +133,15 @@ const update = async (boardId,updateData) => {
     if (updateData.ownerIds) {
       updateData.ownerIds = updateData.ownerIds.map(ownerId => new ObjectId(ownerId));
     }
+    // Kiểm tra và chuyển đổi memberIds thành mảng ObjectId nếu nó không phải là mảng
+    if (updateData.memberIds && !Array.isArray(updateData.memberIds)) {
+      updateData.memberIds = [updateData.memberIds];
+    }
 
+    // Chuyển đổi memberIds thành ObjectId trong mảng nếu nó tồn tại
+    if (updateData.memberIds) {
+      updateData.memberIds = updateData.memberIds.map(memberId => new ObjectId(memberId));
+    }
     if(updateData.columnOrderIds){
       updateData.columnOrderIds = updateData.columnOrderIds.map(_id => new ObjectId(_id))
     }
@@ -164,11 +171,17 @@ const getUserBoards = async (ownerIds) => {
     }
     console.log("ownerIds:", ownerIds);
 
+    // Chuyển memberIds thành một mảng nếu nó không phải là mảng
+    
+
     // Truy vấn cơ sở dữ liệu sử dụng mảng các ObjectId đã chuyển đổi
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       {
         $match: {
-          ownerIds: { $in: ownerIds.map(id => new ObjectId(id)) },
+          $or: [
+            { ownerIds: { $in: ownerIds.map(id => new ObjectId(id)) } },
+            { memberIds: { $in: ownerIds.map(id => new ObjectId(id)) } }
+          ],
           _destroy: false
         }
       },
@@ -197,6 +210,19 @@ const getUserBoards = async (ownerIds) => {
   }
 }
 
+const findOneAndUpdate = async (filter, updateData, options) => {
+  try {
+    // Thực hiện truy vấn và cập nhật tài liệu trong cơ sở dữ liệu
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      filter,
+      updateData,
+      options
+    );
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
 
 export const boardModel = {
     BOARD_COLLECTION_NAME,
@@ -209,6 +235,7 @@ export const boardModel = {
     update,
     pullColumnOrderIds,
     deleteOneById,
-    getUserBoards
+    getUserBoards,
+    findOneAndUpdate,
 }
 

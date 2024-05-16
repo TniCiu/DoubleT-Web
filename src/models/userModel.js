@@ -141,5 +141,5 @@ export const userModel = {
     deleteUserById,
     getUserByEmail,
     comparePassword,
-    getUserDetails
+    getUserDetails,
 };
