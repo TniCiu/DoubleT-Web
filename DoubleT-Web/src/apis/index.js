@@ -1,5 +1,52 @@
 import axios from 'axios'
 import { API_ROOT } from '~/utils/constans'
+// user
+export const loginAPI = async (credentials) => {
+    try {
+        // Gửi yêu cầu POST đến endpoint đăng nhập của máy chủ API với thông tin đăng nhập
+        const response = await axios.post(`${API_ROOT}/v1/Users/login`, credentials);
+        return response.data; // Trả về dữ liệu từ phản hồi của máy chủ API
+    } catch (error) {
+        throw error; // Xử lý lỗi nếu có
+    }
+};
+export const signupAPI = async (userData) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/v1/Users/`, userData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+export const fetchUserBoardsAPI = async (ownerIds) => {
+    try {
+        const response = await axios.get(`${API_ROOT}/v1/boards/users/${ownerIds}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const fetchUserInfoAPI = async (userId) => {
+    try {
+        const response = await axios.get(`${API_ROOT}/v1/Users/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const updateUserInfoAPI = async (userId, updateData) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/v1/Users/${userId}`, updateData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 //Boards 
 export const fetchAllBoardsAPI = async () => {
     const response = await axios.get(`${API_ROOT}/v1/boards`);
@@ -61,3 +108,30 @@ export const deleteColumnDetailsAPI = async (columnId) => {
     
     return response.data
   }
+
+// invitation
+export const sendInvitationAPI = async (invitationData) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/v1/Invitation`, invitationData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+export const acceptInvitationAPI = async (invitationId) => {
+    try {
+        const response = await axios.patch(`${API_ROOT}/v1/Invitation/${invitationId}/accept`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const declineInvitationAPI = async (invitationId) => {
+    try {
+        const response = await axios.patch(`${API_ROOT}/v1/Invitation/${invitationId}/decline`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

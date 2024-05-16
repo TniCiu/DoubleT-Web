@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchAllBoardsAPI, createNewBoardAPI, updateBoardDetailsAPI,deleteBoardDetailsAPI } from '~/apis';
+import { fetchUserBoardsAPI , createNewBoardAPI, updateBoardDetailsAPI,deleteBoardDetailsAPI } from '~/apis';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -24,10 +24,10 @@ import { useTheme } from '@mui/material/styles';
 import { Paper, TextField, Radio, FormControlLabel, Menu, MenuItem } from '@mui/material';
 import './BoardList.css';
 import { toast } from 'react-toastify';
-import { useConfirm } from "material-ui-confirm"
+import { useConfirm } from "material-ui-confirm";
 
 
-function BoardList() {
+function BoardList( ) {
   const [boards, setBoards] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newBoardData, setNewBoardData] = useState({ title: '', description: '', type: 'public' });
@@ -38,8 +38,10 @@ function BoardList() {
   const navigate = useNavigate();
   const theme = useTheme();
 
+  const ownerIds = localStorage.getItem('ownerIds');
+  
   useEffect(() => {
-    fetchAllBoardsAPI().then(data => {
+    fetchUserBoardsAPI(ownerIds).then(data => {
       setBoards(data);
     });
   }, []);
@@ -59,8 +61,10 @@ function BoardList() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formMode === 'create') {
-      createNewBoardAPI(newBoardData).then(() => {
-        fetchAllBoardsAPI().then(data => {
+      // Thêm ownerIds vào dữ liệu mới của board
+      const newBoardDataWithOwnerIds = { ...newBoardData, ownerIds: [ownerIds] };
+      createNewBoardAPI(newBoardDataWithOwnerIds).then(() => {
+        fetchUserBoardsAPI(ownerIds).then(data => {
           setBoards(data);
           setShowForm(false);
           toast.success("New board created successfully");
@@ -70,7 +74,7 @@ function BoardList() {
       });
     } else if (formMode === 'edit') {
       updateBoardDetailsAPI(selectedBoardId, newBoardData).then(() => {
-        fetchAllBoardsAPI().then(data => {
+        fetchUserBoardsAPI(ownerIds).then(data => {
           setBoards(data);
           setShowForm(false);
           toast.success("Board updated successfully");
@@ -80,7 +84,7 @@ function BoardList() {
       });
     }
   };
-
+  
   const handleEditBoard = (boardId) => {
     setSelectedBoardId(boardId);
     const selectedBoard = boards.find(board => board._id === boardId);
@@ -104,39 +108,38 @@ function BoardList() {
     setNewBoardData({ title: '', description: '', type: 'public' }); // Reset form data
     setFormMode('create'); // Reset form mode to 'create'
     setShowForm(true);
-  }
-  const confirmDeleteBoard = useConfirm()
+  };
+  
+  const confirmDeleteBoard = useConfirm();
 
   const handleConfirmDeleteBoard = (boardId) => {
     // Lưu trạng thái xác nhận vào biến cục bộ
     confirmDeleteBoard({
-        title: 'Delete Board?',
-        description: 'This action will permanently delete your Board! Are you sure?',
-        confirmationText: 'Confirm',
-        cancellationText: 'Cancel',
-        confirmationButtonProps: { color: 'warning', variant: 'outlined' }
+      title: 'Delete Board?',
+      description: 'This action will permanently delete your Board! Are you sure?',
+      confirmationText: 'Confirm',
+      cancellationText: 'Cancel',
+      confirmationButtonProps: { color: 'warning', variant: 'outlined' }
+    }).then(() => {
+      processDeleteBoard(boardId); // Truyền boardId vào hàm xóa
+    }).catch(() => {
+      // Xử lý nếu người dùng hủy xóa
+      console.log('Delete board cancelled.');
+    });
+  };
+
+  const processDeleteBoard = (boardId) => {
+    deleteBoardDetailsAPI(boardId)
+    .then(res => {
+      toast.success(res?.deleteResult);
+      const updatedBoards = boards.filter(board => board._id !== boardId);
+      setBoards(updatedBoards);
     })
-        .then(() => {
-            processDeleteBoard(boardId); // Truyền boardId vào hàm xóa
-        }).catch(() => {
-            // Xử lý nếu người dùng hủy xóa
-            console.log('Delete board cancelled.');
-        });
-};
-
-
-const processDeleteBoard = (boardId) => {
-  deleteBoardDetailsAPI(boardId)
-  .then(res => {
-    toast.success(res?.deleteResult)
-    const updatedBoards = boards.filter(board => board._id !== boardId);
-    setBoards(updatedBoards);
-  })
-  .catch(error => {
-    console.error('Error deleting board:', error);
-    toast.error('An error occurred while deleting the board');
-  });
-};
+    .catch(error => {
+      console.error('Error deleting board:', error);
+      toast.error('An error occurred while deleting the board');
+    });
+  };
 
   return (
     <>
@@ -158,14 +161,14 @@ const processDeleteBoard = (boardId) => {
                 </ListItemIcon>
                 <ListItemText primary="Templates" />
               </ListItem>
-              <ListItem button component={Link} to="/">
+              <ListItem button component={Link} to="/boards">
                 <ListItemIcon>
                   <HomeIcon style={{ fontSize: '20px', color: theme.palette.mode === 'dark' ? 'white' : 'black' }} />
                 </ListItemIcon>
                 <ListItemText primary="Home" />
               </ListItem>
               <Divider />
-              <ListItem button onClick={(handleShowForm)}>
+              <ListItem button onClick={handleShowForm}>
                 <ListItemIcon>
                   <LibraryAddIcon style={{ fontSize: '20px', color: theme.palette.mode === 'dark' ? 'white' : 'black' }}/>
                 </ListItemIcon>

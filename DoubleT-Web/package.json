@@ -24,10 +24,12 @@
     "@mui/material": "^5.13.0",
     "@swc/core": "^1.4.16",
     "axios": "^1.6.8",
+    "compressorjs": "^1.2.1",
     "lodash": "^4.17.21",
     "material-ui-confirm": "^3.0.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-google-login": "^5.2.2",
     "react-router-dom": "^6.23.0",
     "react-toastify": "^10.0.5"
   },

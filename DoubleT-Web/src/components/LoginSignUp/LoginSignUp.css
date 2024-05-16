@@ -1,0 +1,145 @@
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 320px;
+    padding: 20px; /* Thêm padding để tạo không gian xung quanh */
+    background: #fff; /* Thêm màu nền để tạo khối rõ ràng */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Thêm bóng để tạo độ khối */
+    border-radius: 10px; /* Bo tròn góc */
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.text {
+    color: #1565c0;
+    font-size: 30px;
+    font-weight: 500;
+}
+
+.underline {
+    width: 40px;
+    height: 1px;
+    background: #1565c0;
+    border-radius: 3px;
+}
+
+.inputs {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input {
+    display: flex;
+    align-items: center;
+    width: 290px;
+    height: 50px;
+    background: #eaeaea;
+    border-radius: 5px;
+    padding: 0 10px; /* Thêm padding để tạo không gian bên trong */
+}
+
+.input img {
+    margin-right: 10px; /* Giảm khoảng cách giữa icon và input */
+}
+
+.input input {
+    height: 40px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #676767;
+    font-size: 16px;
+}
+
+.forgot-password {
+    margin-top: 20px;
+    color: #676767;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.forgot-password span {
+    color: #1565c0;
+}
+
+.submit-container {
+    display: flex;
+    justify-content: space-between; /* Change to space-between to ensure buttons are properly aligned */
+    width: 100%; /* Make sure the container takes full width */
+    margin: 40px 0 0; /* Adjust top margin */
+}
+
+.submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 140px; /* Adjust width to fit within the form */
+    height: 40px;
+    color: #fff;
+    background: #1565c0;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.submit.gray {
+    background: #eaeaea;
+    color: #676767;
+}
+.google-login {
+    margin-top: 20px; /* Thêm margin top để tạo khoảng cách với các nút trên */
+}
+.icon-primary {
+    filter: invert(41%) sepia(91%) saturate(745%) hue-rotate(192deg) brightness(94%) contrast(95%);
+}
+
+.left-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 450px;
+}
+
+.right-image {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 450px;
+}
+
+.left-image-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 450px;
+    height: 300px;
+    z-index: -1;
+}
+
+.right-image-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 450px;
+    height: 275px;
+    z-index: -1;
+}
