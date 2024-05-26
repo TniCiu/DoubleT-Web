@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField'
 import CloseIcon from '@mui/icons-material/Close'
 
 
-function ListColumns({ columns, createNewColumn,createNewCard,selectedImage, deleteColumnDetails,updateColumnTitle
+function ListColumns({ board,columns, createNewColumn,createNewCard,selectedImage, deleteColumnDetails,updateColumnTitle
 
  }) {
   const [openNewColumnForm, setOpenNewColumnForm] = useState(false)
@@ -47,6 +47,7 @@ function ListColumns({ columns, createNewColumn,createNewCard,selectedImage, del
       }}>
 
         {columns?.map(column => <Column 
+        board = {board}
         key ={column._id} column = {column} 
         createNewCard={createNewCard} 
         updateColumnTitle={updateColumnTitle}

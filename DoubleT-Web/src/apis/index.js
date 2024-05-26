@@ -47,6 +47,14 @@ export const updateUserInfoAPI = async (userId, updateData) => {
     }
 };
 
+export const fetchInforUserBoardsAPI = async (ownerIds) => {
+    try {
+        const response = await axios.get(`${API_ROOT}/v1/boards/${ownerIds}/members`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
 //Boards 
 export const fetchAllBoardsAPI = async () => {
     const response = await axios.get(`${API_ROOT}/v1/boards`);
@@ -108,8 +116,34 @@ export const deleteColumnDetailsAPI = async (columnId) => {
     
     return response.data
   }
+  export const updateCardDetailsAPI = async (cardId, updatedFields) => {
+    try {
+      const response = await axios.put(`${API_ROOT}/v1/cards/${cardId}`, updatedFields);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update card details:', error);
+      throw error;
+    }
+  };
+  export const addMemberToCardAPI = async (cardId, memberId) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/v1/cards/${cardId}/members`, { memberId });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
 
 // invitation
+export const fetchInvitationsAPI = async (invitedUserId) => {
+    try {
+        const response = await axios.get(`${API_ROOT}/v1/Invitation/invited/${invitedUserId}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const sendInvitationAPI = async (invitationData) => {
     try {
         const response = await axios.post(`${API_ROOT}/v1/Invitation`, invitationData);
@@ -135,3 +169,4 @@ export const declineInvitationAPI = async (invitationId) => {
         throw error;
     }
 }
+

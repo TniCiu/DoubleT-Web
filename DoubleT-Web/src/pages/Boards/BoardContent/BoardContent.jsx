@@ -287,6 +287,7 @@ const collisionDetectionStrategy = useCallback((args) => {
 
       }}>
         <ListColumns 
+        board={board}
         columns = {orderedColumnsState} 
         createNewColumn = {createNewColumn}
         createNewCard = {createNewCard}
@@ -296,7 +297,7 @@ const collisionDetectionStrategy = useCallback((args) => {
         <DragOverlay dropAnimation={customDropAnimation }>
           {( !activeDragItemType) && null }
           {( activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) && <Column column={activeDragItemData}/>}
-          {( activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) && <Card card={activeDragItemData}/>}
+          {( activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) && <Card card={activeDragItemData}  />}
         </DragOverlay>
       </Box>
     </DndContext>

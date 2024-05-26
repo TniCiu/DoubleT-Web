@@ -42,7 +42,12 @@ function BoardList( ) {
   
   useEffect(() => {
     fetchUserBoardsAPI(ownerIds).then(data => {
-      setBoards(data);
+      // Lọc danh sách Boards dựa trên ownerIds và memberIds
+      const filteredBoards = data.filter(board => {
+        return board.ownerIds.includes(ownerIds) || board.memberIds.includes(ownerIds);
+      });
+      setBoards(filteredBoards);
+      console.log('MemberIds:', filteredBoards);
     });
   }, []);
 

@@ -1,59 +1,31 @@
-import { useState } from 'react';
-import ModeSelect from '~/components/ModeSelect/ModeSelect';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import AppsIcon from '@mui/icons-material/Apps';
 import { ReactComponent as TrelloIcon } from '~/assets/trello.svg';
 import SvgIcon from '@mui/material/SvgIcon';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Badge from '@mui/material/Badge';
+import Tooltip from '@mui/material/Tooltip';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import CloseIcon from '@mui/icons-material/Close';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'; // Thêm dòng này
 import Workspaces from './Menus/Workspaces';
 import Recent from './Menus/Recents';
 import Starred from './Menus/Starred';
 import Templates from './Menus/Templates';
-import TextField from '@mui/material/TextField';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import Badge from '@mui/material/Badge';
-import Tooltip from '@mui/material/Tooltip';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Profiles from './Menus/Profiles';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
-import { acceptInvitationAPI, declineInvitationAPI } from '~/apis';
+import ModeSelect from '~/components/ModeSelect/ModeSelect';
+import InvitationList from '~/components/AppBar/Invitition/InvitationList';
 
-function AppBar({ selectedImage }) {
+const AppBar = ({ selectedImage }) => {
   const [searchValue, setSearchValue] = useState('');
   const [showNotificationForm, setShowNotificationForm] = useState(false);
-
-  const handleNotificationClick = () => {
-    setShowNotificationForm(true);
-  };
+  const invitedUserId = localStorage.getItem('ownerIds');
 
   const handleCloseNotificationForm = () => {
     setShowNotificationForm(false);
-  };
-// ID của lời mời
-const invitationId = '6644b8245bd005c6609861f4';
-
-// Xác nhận lời mời
-
-// Hoặc từ chối lời mời
-
-  const handleAcceptInvitation = (invitationId) => {
-    acceptInvitationAPI(invitationId).then((response) => {
-      // Xử lý khi API acceptInvitation thành công
-    }).catch((error) => {
-      // Xử lý khi API acceptInvitation thất bại
-    });
-  };
-
-  const handleDeclineInvitation = (invitationId) => {
-    declineInvitationAPI(invitationId).then((response) => {
-      // Xử lý khi API declineInvitation thành công
-    }).catch((error) => {
-      // Xử lý khi API declineInvitation thất bại
-    });
   };
 
   return (
@@ -119,7 +91,7 @@ const invitationId = '6644b8245bd005c6609861f4';
         />
         <ModeSelect />
         <Tooltip title="Notification">
-          <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }} onClick={handleNotificationClick}>
+          <Badge color="warning" variant="dot" sx={{ cursor: 'pointer' }} onClick={() => setShowNotificationForm(true)}>
             <NotificationsNoneIcon sx={{ color: 'white' }} />
           </Badge>
         </Tooltip>
@@ -129,38 +101,10 @@ const invitationId = '6644b8245bd005c6609861f4';
         <Profiles />
       </Box>
       {showNotificationForm && (
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '20%',
-            left: '80%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'white',
-            padding: '23px',
-            height:'180px',
-            borderRadius: '5px',
-            boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-            zIndex: '9999',
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>Notification Form</Typography>
-          <Button onClick={handleAcceptInvitation} variant="contained" color="success">Accept </Button>
-          <Button onClick={handleDeclineInvitation} variant="contained" color="error">Decline </Button>
-          <CloseIcon
-            sx={{
-              position: 'absolute',
-              top: '1px',
-              right: '1px',
-              cursor: 'pointer',
-              color: 'red',
-              zIndex: '99999',
-            }}
-            onClick={handleCloseNotificationForm}
-          />
-        </Box>
+        <InvitationList invitedUserId={invitedUserId} handleCloseNotificationForm={handleCloseNotificationForm} />
       )}
     </Box>
-  )
-}
+  );
+};
 
 export default AppBar;

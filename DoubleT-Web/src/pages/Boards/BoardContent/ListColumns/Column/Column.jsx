@@ -25,7 +25,8 @@ import { useConfirm } from "material-ui-confirm"
 
 
 
-function Column({ column, updateColumnTitle, createNewCard, deleteColumnDetails }) {
+function Column({board, column, updateColumnTitle, createNewCard, deleteColumnDetails, }) {
+  const [openCardInformationLocal, setOpenCardInformationLocal] = useState(false);
   const {
     attributes,
     listeners,
@@ -35,7 +36,8 @@ function Column({ column, updateColumnTitle, createNewCard, deleteColumnDetails 
     isDragging
   } = useSortable({
     id: column._id,
-    data: { ...column }
+    data: { ...column },
+    disabled:openCardInformationLocal
   })
 
   const dndKitColumnStyles = {
@@ -132,10 +134,12 @@ function Column({ column, updateColumnTitle, createNewCard, deleteColumnDetails 
           ml: 2,
           borderRadius: '6px',
           height: 'fit-content',
-          maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} -${theme.spacing(5)})`
+          maxHeight: (theme) => `calc(${theme.trello.boardContentHeight} -${theme.spacing(5)})`,
+          overflowY: 'auto'
         }}
       >
         {/* Box Columns Header */}
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{
           height: (theme) => theme.trello.columnHeaderHeight,
           p: 2,
@@ -238,15 +242,12 @@ function Column({ column, updateColumnTitle, createNewCard, deleteColumnDetails 
           </Box>
         </Box>
         {/* List Card */}
-        <ListCards cards={orderedCards} />
-
+        <Box sx={{ flex: 1, overflowY: 'auto', maxHeight: 'calc(100% - 60px)' }}> {/* Adjust the maxHeight according to your design */}
+            <ListCards board={board} cards={orderedCards} openCardInformation={openCardInformationLocal} setOpenCardInformation={setOpenCardInformationLocal} />
+          </Box>
 
         {/* Box Columns Footer */}
-        <Box sx={{
-          height: (theme) => theme.trello.columnFooterHeight,
-          p: 2,
-
-        }}>
+        <Box sx={{ height: (theme) => theme.trello.columnFooterHeight, p: 2 }}>
           {!openNewCardForm
             ? <Box sx={{
               height: '100%',
@@ -312,7 +313,9 @@ function Column({ column, updateColumnTitle, createNewCard, deleteColumnDetails 
                 />
               </Box>
             </Box>
+            
           }
+</Box>
 
         </Box>
       </Box>

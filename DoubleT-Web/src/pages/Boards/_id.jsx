@@ -25,7 +25,7 @@ function Board() {
   const [board, setBoard] = useState(null)
   const { id } = useParams() // Lấy id từ đường dẫn
   const [selectedImage, setSelectedImage] = useState(null)
-
+  
   const handleFileChange = (imageUrl) => {
     setSelectedImage(imageUrl)
   }

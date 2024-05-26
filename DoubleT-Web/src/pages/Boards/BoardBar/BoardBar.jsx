@@ -18,6 +18,8 @@ import Slide from '@mui/material/Slide';
 import { toast } from 'react-toastify';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import { Avatar } from '@mui/material';
+import { fetchInforUserBoardsAPI } from '~/apis'
 
 const MenuStyle = {
   bgcolor: 'transparent',
@@ -32,6 +34,18 @@ const MenuStyle = {
     bgcolor: 'primary.100'
   }
 };
+// Custom CSS for AvatarGroup
+const customStyles = `
+  .avatar-group-custom .MuiAvatarGroup-avatar {
+    border: none !important;
+    box-shadow: none !important;
+  }
+`;
+
+// Apply custom CSS dynamically
+const styleTag = document.createElement('style');
+styleTag.innerHTML = customStyles;
+document.head.appendChild(styleTag);
 
 // Styled Invite Button
 const StyledInviteButton = styled(Button)({
@@ -63,11 +77,30 @@ const StyledInput = styled('input')({
 function BoardBar({ board, selectedImage, onFileChange }) {
   const [invitedUserEmail, setInvitedUserEmail] = useState('');
   const [openModal, setOpenModal] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [boardMembers, setBoardMembers] = useState([]); // Biến state trung gian
 
   useEffect(() => {
-    // You can do something when selectedImage changes
-  }, [selectedImage]);
+    fetchInforUserBoardsAPI(board._id)
+      .then((res) => {
+        // Kiểm tra xem res.board.members có chứa mảng thành viên không
+        if (res.board && Array.isArray(res.board.members)) {
+          setBoardMembers(res.board.members); // Lưu trữ giá trị mới vào biến trung gian
+        } else {
+          console.error('Members array not found in response:', res);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch info member', error);
+      });
+  }, [board._id ,selectedImage]);
 
+  // useEffect mới chỉ thêm members khi giá trị boardMembers thay đổi
+  useEffect(() => {
+    setMembers(boardMembers);
+  }, [boardMembers]);
+
+   
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -88,10 +121,13 @@ function BoardBar({ board, selectedImage, onFileChange }) {
           boardId: boardId,
           invitedBy: invitedBy
       };
-
       
-      sendInvitationAPI(invitationData);
-      toast.success('User invited successfully!');
+      sendInvitationAPI(invitationData).then(data => {
+        toast.success('User invited successfully!');
+      }) .catch((error) => {
+        toast.error("Failed to invite user" )
+      })
+
       
       // Reset the email state and close the invite form
       setInvitedUserEmail('');
@@ -127,7 +163,7 @@ function BoardBar({ board, selectedImage, onFileChange }) {
         borderBottom: '1px solid white',
         backgroundImage: selectedImage ? `url(${selectedImage})` : 'none',
         backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
+        backgroundSize: '100% ',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
@@ -169,10 +205,44 @@ function BoardBar({ board, selectedImage, onFileChange }) {
         />
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-        <AvatarGroup max={4} sx={{ gap: '5px' }}>
-          {/* Avatar List */}
-        </AvatarGroup>
+      <Box sx={{ 
+        display: 'flex', alignItems: 'center', gap: '2px' 
+        }}>
+      <AvatarGroup
+        max={4}
+        className="avatar-group-custom"
+        sx={{
+          borderRadius: '4px', // Adjust the border radius as needed
+          gap: '9px',
+        }}
+      >
+        {members.map((member) => (
+          <Avatar
+            key={member._id}
+            alt={member.username}
+            src={member.avatar}
+            title={member.username} // Thêm title chứa tên người dùng
+            sx={{
+              overflow: 'hidden',
+              '&:hover::after': {
+                content: `"${member.username}"`, // Hiển thị tên người dùng khi hover
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                padding: '5px',
+                background: 'rgba(0, 0, 0, 0.8)',
+                color: '#fff',
+                borderRadius: '4px',
+              fontSize: '12px',
+              whiteSpace: 'nowrap',
+              zIndex: '999',
+            },
+          }}
+        />
+        
+        ))}
+      </AvatarGroup>
         <StyledInviteButton
           variant="outlined"
           startIcon={<PersonAddIcon />}

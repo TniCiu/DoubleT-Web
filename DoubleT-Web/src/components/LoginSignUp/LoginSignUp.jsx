@@ -9,7 +9,7 @@ import { loginAPI, signupAPI } from '~/apis';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-const LoginSignUp = () => {
+const LoginSignUp = ({onLoginSuccess}) => {
     const [action, setAction] = useState("Login");
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,18 +19,20 @@ const LoginSignUp = () => {
     const handleLogin = async () => {
         setAction('Login');
         if (action === 'Login') {
-            loginAPI({ email, password })
-                .then(res => {
-                    const ownerIds = res.ownerIds;
-                    localStorage.setItem('ownerIds', ownerIds);
-                    toast.success(res?.message);
-                    navigate('/boards', { state: { ownerIds: ownerIds } });
-                })
-                .catch(error => {
-                    toast.error('An error occurred while logging in. Please try again later.');
-                });
+            try {
+                const res = await loginAPI({ email, password });
+                const ownerIds = res.ownerIds;
+                localStorage.setItem('ownerIds', ownerIds);
+                toast.success(res?.message);
+                onLoginSuccess();
+                navigate('/boards', { state: { ownerIds: ownerIds } });
+            } catch (error) {
+                console.error('Error during login:', error);
+                toast.error('An error occurred while logging in. Please try again later.');
+            }
         }
     };
+    
 
     const handleSignUp = () => {
         setAction('Sign Up');
@@ -40,6 +42,7 @@ const LoginSignUp = () => {
                     const ownerIds = res.ownerIds;
                     localStorage.setItem('ownerIds', ownerIds);
                     toast.success(res?.message);
+                    onLoginSuccess();
                     navigate('/boards', { state: { ownerIds: ownerIds } });
                 })
                 .catch(error => {

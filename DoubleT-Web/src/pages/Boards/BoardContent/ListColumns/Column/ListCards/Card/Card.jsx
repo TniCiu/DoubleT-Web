@@ -1,87 +1,102 @@
-import { Card as MuiCard } from '@mui/material'
-import CardActions from '@mui/material/CardActions'
-import CardContent from '@mui/material/CardContent'
-import CardMedia from '@mui/material/CardMedia'
-import GroupIcon from '@mui/icons-material/Group'
-import CommentIcon from '@mui/icons-material/Comment'
-import AttachmentIcon from '@mui/icons-material/Attachment'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import React, { useState } from 'react';
+import { Card as MuiCard, CardActions, CardContent, CardMedia, Button, Typography } from '@mui/material';
+import GroupIcon from '@mui/icons-material/Group';
+import CommentIcon from '@mui/icons-material/Comment';
+import AttachmentIcon from '@mui/icons-material/Attachment';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import CardInformation from './CardInformation';
 
-function Card({ card }) {
+// Function to count number of attachments based on line breaks
+const countAttachments = (attachments) => {
+  return attachments ? attachments.trim().split('\n').filter(line => line.trim() !== '').length : 0;
+};
+
+function Card({ card, board, openCardInformation, setOpenCardInformation }) {
+  const [openCardInformationLocal, setOpenCardInformationLocal] = useState(false);
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({
     id: card._id,
-    data: { ...card }
-  })
+    data: { ...card },
+    disabled: openCardInformation || openCardInformationLocal,
+  });
 
   const dndKitCardStyles = {
-    touchAction : 'none',
+    touchAction: 'none',
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity : isDragging ? 0.5 : undefined,
-    border : isDragging ? '1px solid #81ecec' : undefined
-  }
+    opacity: isDragging ? 0.5 : undefined,
+    border: isDragging ? '1px solid #81ecec' : undefined,
+  };
+
   const shouldShowCardAction = () => {
-    return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
-  }
+    return !!card?.members?.length || !!card?.comments?.length || countAttachments(card?.attachments) > 0;
+  };
+
+  const handleClick = () => {
+    if (typeof setOpenCardInformation === 'function') {
+      setOpenCardInformation(true);
+    }
+    setOpenCardInformationLocal(true);
+  };
+
+  const handleClose = () => {
+    if (typeof setOpenCardInformation === 'function') {
+      setOpenCardInformation(false);
+    }
+    setOpenCardInformationLocal(false);
+  };
 
   return (
-    <MuiCard
-      ref = {setNodeRef}
-      style = {dndKitCardStyles}
-      {...attributes}
-      {...listeners}
-      sx={{
-        cursor : 'pointer',
-        boxShadow : '0 1px 1px rbga(0,0,0,0.2)',
-        overflow : 'unset',
-        display : card?.FE_PlaceholderCard ? 'none' : 'block'
-      }}
-    >
-      {card?.cover &&
-      <CardMedia
-        sx={{ height: 140 }}
-        image= {card?.cover}
-      />}
-
-      <CardContent sx ={{ p : 1.5, '&:last-child' :{ p : 1.5 } }} >
-        <Typography >{card?.title}</Typography>
-      </CardContent>
-      {shouldShowCardAction() &&
-
-      <CardActions sx ={{ p : '0 4px 8px 4px' }} >
-        {!!card?.memberIds?.length &&
-        <Button size="small" startIcon = {< GroupIcon/> } sx = {{ '&:hover': { bgcolor : '#ecf0f1' } }} >
-          { card?.memberIds?.length}
-        </Button>
-        }
-
-        {!!card?.comments?.length &&
-        <Button size="small" startIcon = {< CommentIcon/> } sx = {{ '&:hover': { bgcolor : '#ecf0f1' } }} >
-          { card?.comments?.length}
-        </Button>
-        }
-
-        {!!card?.attachments?.length &&
-        <Button size="small" startIcon = {< AttachmentIcon/> } sx = {{ '&:hover': { bgcolor : '#ecf0f1' } }} >
-          { card?.attachments?.length}
-        </Button>
-        }
-      </CardActions>
-      }
-    </MuiCard>
-  )
+    <>
+      <MuiCard
+        ref={setNodeRef}
+        style={dndKitCardStyles}
+        {...attributes}
+        {...listeners}
+        sx={{
+          cursor: 'pointer',
+          boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
+          overflow: 'unset',
+          display: card?.FE_PlaceholderCard ? 'none' : 'block',
+        }}
+        onClick={handleClick}
+      >
+        {card?.cover && (
+          <CardMedia sx={{ height: 140 }} image={card?.cover} />
+        )}
+        <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
+          <Typography>{card?.title}</Typography>
+        </CardContent>
+        {shouldShowCardAction() && (
+          <CardActions sx={{ p: '0 4px 8px 4px' }}>
+            {!!card?.members?.length && (
+              <Button size="small" startIcon={<GroupIcon />} sx={{ '&:hover': { bgcolor: '#ecf0f1' } }}>
+                {card?.members?.length}
+              </Button>
+            )}
+            {!!card?.comments?.length && (
+              <Button size="small" startIcon={<CommentIcon />} sx={{ '&:hover': { bgcolor: '#ecf0f1' } }}>
+                {card?.comments?.length}
+              </Button>
+            )}
+            {countAttachments(card?.attachments) > 0 && (
+              <Button size="small" startIcon={<AttachmentIcon />} sx={{ '&:hover': { bgcolor: '#ecf0f1' } }}>
+                {countAttachments(card?.attachments)}
+              </Button>
+            )}
+          </CardActions>
+        )}
+      </MuiCard>
+      <CardInformation card={card} board={board} openCardInformation={openCardInformationLocal} onClose={handleClose} />
+    </>
+  );
 }
 
-export default Card
-
-// "" 
+export default Card;
