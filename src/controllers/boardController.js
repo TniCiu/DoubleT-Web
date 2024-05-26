@@ -92,22 +92,9 @@ const getUserBoards = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
-const shortenBase64 = (base64String) => {
-    try {
-        if (!base64String) {
-            return ""; // Trả về chuỗi trống nếu base64String không tồn tại
-        }
-        // Lấy một phần của base64String (ví dụ: 10 ký tự đầu và cuối)
-        const shortenedString = base64String.substring(0, 10) + '...' + base64String.substring(base64String.length - 10);
-        return shortenedString;
-    } catch (error) {
-        console.error("Error in shortenBase64 function:", error);
-        throw new Error("Error in shortenBase64 function");
-    }
-};
 
 
-// Sử dụng hàm shortenBase64 để rút gọn avatar base64
+
 const getBoardMembersInfo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -116,8 +103,20 @@ const getBoardMembersInfo = async (req, res) => {
             return res.status(404).json({ message: "Board not found" });
         }
 
-       
-
+     
+        const owners = [];
+        for (const ownerId of board.ownerIds) {
+            const owner = await userModel.getUserDetails(ownerId);
+            if (owner) {
+                owners.push({
+                    _id: owner._id,
+                    email: owner.email,
+                    username: owner.username,
+                    avatar: owner.avatar
+                });
+            }
+        }
+        // Fetching members details
         const members = [];
         for (const memberId of board.memberIds) {
             const member = await userModel.getUserDetails(memberId);
@@ -126,25 +125,29 @@ const getBoardMembersInfo = async (req, res) => {
                     _id: member._id,
                     email: member.email,
                     username: member.username,
-                    avatar: member.avatar // Rút gọn base64 ở đây
+                    avatar: member.avatar
                 });
             }
         }
 
+        // Sending the response
         return res.status(200).json({
             board: {
                 _id: board._id,
                 title: board.title,
                 description: board.description,
                 type: board.type,
+                owners ,
                 members
             }
         });
     } catch (error) {
-        console.error("Error in getBoardInfo function:", error);
+        console.error("Error in getBoardMembersInfo function:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+
 
 
 export const boardController = {

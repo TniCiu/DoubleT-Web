@@ -21,7 +21,20 @@ const createNew = async (req, res, next) => {
     }
     
 }
+const addMember = async (req, res, next) => {
+    const correctCondition = Joi.object({
+        memberId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+    })
+
+    try {
+        await correctCondition.validateAsync(req.body, { abortEarly: false })
+        next()
+    } catch (error) {
+        next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.details.map(detail => detail.message).join(', ')))
+    }
+}
 
 export const cardValidation = {
-    createNew
+    createNew,
+    addMember
 }

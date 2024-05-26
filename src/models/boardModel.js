@@ -169,7 +169,6 @@ const getUserBoards = async (ownerIds) => {
     if (!Array.isArray(ownerIds)) {
       ownerIds = [ownerIds];
     }
-    console.log("ownerIds:", ownerIds);
 
     // Chuyển memberIds thành một mảng nếu nó không phải là mảng
     

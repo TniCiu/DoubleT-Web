@@ -101,7 +101,6 @@ const deleteUserById = async (userId) => {
 
 const getUserByEmail = async (email) => {
     try {
-        console.log(email)
         return await GET_DB().collection(USER_COLLECTION_NAME).findOne({ email: email });
     } catch (error) {
         throw new Error(error);

@@ -2,6 +2,8 @@ import { userModel } from "~/models/userModel";
 import ApiError from "~/utils/ApiError";
 import { StatusCodes } from "http-status-codes";
 import { boardModel } from "~/models/boardModel";
+import { v2 as cloudinary } from 'cloudinary';
+
 
 const loginUser = async (email, password) => {
     try {
@@ -56,14 +58,35 @@ const getUserDetails = async (userId) => {
     }
 };
 
+          
+
+
+const uploadImageToCloudinary = async (imagePath) => {
+    try {
+        const result = await cloudinary.uploader.upload(imagePath);
+        return result.secure_url;
+    } catch (error) {
+        console.error('Error uploading image to Cloudinary:', error);
+        throw new Error(error);
+    }
+};
+
+
 const updateUser = async (userId, updateData) => {
     try {
-        // Thêm bất kỳ xử lý logic nào cần thiết ở đây (ví dụ: kiểm tra và cập nhật mật khẩu nếu được thay đổi)
+        // Kiểm tra xem có avatar mới được cung cấp không
+        if (updateData.avatar) {
+            // Tải ảnh lên Cloudinary
+            updateData.avatar = await uploadImageToCloudinary(updateData.avatar);
+        }
+
+        // Cập nhật thông tin người dùng
         return await userModel.updateUser(userId, updateData);
     } catch (error) {
         throw error;
     }
 };
+
 
 const deleteUser = async (userId) => {
     try {
