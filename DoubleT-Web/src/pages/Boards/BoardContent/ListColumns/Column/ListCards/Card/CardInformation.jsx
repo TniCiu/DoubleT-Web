@@ -9,8 +9,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import MDEditor from '@uiw/react-md-editor';
 import CloseIcon from '@mui/icons-material/Close';
 import CardInformationRightPane from './CardInformationRightPane';
-import { fetchInforUserBoardsAPI, addMemberToCardAPI, updateCardDetailsAPI, fetchUserInfoAPI } from '~/apis';
-
+import { fetchInforUserBoardsAPI, addMemberToCardAPI, updateCardDetailsAPI, fetchUserInfoAPI,  } from '~/apis';
 const modalStyle = {
   top: '50%',
   left: '50%',
@@ -32,7 +31,7 @@ const leftPaneStyle = {
   overflow: 'auto',
 };
 
-const CardInformation = ({ board, openCardInformation, onClose, card }) => {
+const CardInformation = ({ board, openCardInformation, onClose, card, handleUpdateCard }) => {
   const [description, setDescription] = useState(card ? card.attachments : '');
   const [isEditing, setIsEditing] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -74,7 +73,8 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
         }
       }
     };
-    fetchUserData();
+  
+    fetchUserData(); // Gọi hàm fetchUserData ngay sau khi định nghĩa để đảm bảo nó được gọi mỗi khi component được render lại
   }, []);
 
   useEffect(() => {
@@ -104,6 +104,7 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
       try {
         await updateCardDetailsAPI(card._id, { title: editedTitle });
         card.title = editedTitle; // Update local state
+        handleUpdateCard(card); // Call the update function
       } catch (error) {
         console.error('Failed to update card title:', error);
       }
@@ -121,7 +122,6 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
     setEditedTitle(event.target.value);
   };
 
- 
   const handleCommentChange = (event) => {
     setNewComment(event.target.value);
   };
@@ -138,7 +138,8 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
       try {
         await removeMemberFromCardAPI(card._id, member._id);
         setMembers((prevMembers) => prevMembers.filter((m) => m._id !== member._id));
-        console.log('Member removed from card successfully');
+        card.members = card.members.filter((m) => m._id !== member._id);
+        handleUpdateCard(card); // Call the update function
       } catch (error) {
         console.error('Failed to remove member from card:', error);
       }
@@ -146,7 +147,8 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
       try {
         await addMemberToCardAPI(card._id, member._id);
         setMembers((prevMembers) => [...prevMembers, member]);
-        console.log('Member added to card successfully');
+        card.members.push(member);
+        handleUpdateCard(card); // Call the update function
       } catch (error) {
         console.error('Failed to add member to card:', error);
       }
@@ -168,6 +170,7 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
           await updateCardDetailsAPI(card._id, { cover: reader.result });
           setCoverImage(reader.result);
           card.cover = reader.result; // Update local state
+          handleUpdateCard(card); // Call the update function
         } catch (error) {
           console.error('Failed to update card cover:', error);
         }
@@ -175,11 +178,13 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
       reader.readAsDataURL(file);
     }
   };
+
   const handleEditClick = async () => {
     if (isEditing && description !== card.attachments) {
       try {
         await updateCardDetailsAPI(card._id, { attachments: description });
         card.attachments = description; // Update local state
+        handleUpdateCard(card); // Call the update function
       } catch (error) {
         console.error('Failed to update card description:', error);
       }
@@ -188,50 +193,29 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
   };
 
   const handleAddComment = async () => {
-   
-    
     if (newComment.trim()) {
-      // Kiểm tra xem bình luận mới đã tồn tại trong danh sách hay chưa
-      const existingComment = comments.find(comment => 
-        comment.user.id === user.id && comment.content === newComment
-      );
-  
-      // Nếu bình luận mới không tồn tại, thêm vào danh sách
-      if (!existingComment) {
-        const newActivity = {
-          user: {
-            id: user ? user.id : '',
-            name: user ? user.username : '',
-            avatar: user ? user.avatar : '',
-          },
-          content: newComment,
-          timestamp: new Date().toISOString(),
-        };
-        try {
-          const updatedComments = [...comments, newActivity];
-          console.log('Updated comments:', updatedComments); // Log the updated comments array
-          await updateCardDetailsAPI(card._id, { comments: updatedComments });
-          setComments(updatedComments);
-          setNewComment('');
-          console.log('Comment added successfully!');
-        } catch (error) {
-          console.error('Failed to add comment to card:', error);
-        }
-      } else {
-        // Nếu bình luận mới đã tồn tại, chỉ cập nhật nội dung của bình luận đó
-        existingComment.content = newComment;
-        try {
-          await updateCardDetailsAPI(card._id, { comments: comments });
-          setNewComment('');
-          console.log('Comment updated successfully!');
-        } catch (error) {
-          console.error('Failed to update comment on card:', error);
-        }
+      const newActivity = {
+        user: {
+          id: user ? user.id : '',
+          name: user ? user.username : '',
+          avatar: user ? user.avatar : '',
+        },
+        content: newComment,
+        timestamp: new Date().toISOString(),
+      };
+      try {
+        const updatedComments = [...comments, newActivity];
+        await updateCardDetailsAPI(card._id, { comments: updatedComments });
+        card.comments = updatedComments; // Update local state
+        setComments(updatedComments);
+        setNewComment('');
+        handleUpdateCard(card); // Call the update function
+      } catch (error) {
+        console.error('Failed to add comment to card:', error);
       }
     }
   };
-  
-  
+
   const handleCommentKeyPress = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault(); // Prevent the default form submission behavior
@@ -340,7 +324,7 @@ const CardInformation = ({ board, openCardInformation, onClose, card }) => {
     <ReactMarkdown
       components={{
         img: ({ node, ...props }) => (
-          <img {...props} style={{ width: '100%', height: '275px' }} />
+          <img {...props} style={{ width: '100%', height: '100%' }} />
         ),
       }}
     >

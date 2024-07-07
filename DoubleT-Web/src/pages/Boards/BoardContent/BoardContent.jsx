@@ -283,7 +283,10 @@ const collisionDetectionStrategy = useCallback((args) => {
         width :'100%',
         height: (theme) => theme.trello.boardContentHeight,
         p : '10px 0',
-        backgroundImage: selectedImage ? `url(${selectedImage})` : 'none',
+        backgroundImage: selectedImage || board.imageUrl? `url(${selectedImage || board.imageUrl})` : 'none',
+        width: '100%',
+        backgroundSize: 'cover', // Đảm bảo ảnh nền bao phủ toàn bộ khu vực
+        backgroundPosition: 'center'
 
       }}>
         <ListColumns 

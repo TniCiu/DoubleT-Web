@@ -146,7 +146,6 @@ function BoardBar({ board, selectedImage, onFileChange }) {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
-
   return (
     <Box
       px={2}
@@ -161,7 +160,7 @@ function BoardBar({ board, selectedImage, onFileChange }) {
         bgcolor: (theme) =>
           theme.palette.mode === 'dark' ? '#34495e' : '#0984e3',
         borderBottom: '1px solid white',
-        backgroundImage: selectedImage ? `url(${selectedImage})` : 'none',
+        backgroundImage: selectedImage || board.imageUrl  ? `url(${selectedImage||board.imageUrl})` : 'none',
         backgroundRepeat: 'no-repeat',
         backgroundSize: '100% ',
       }}

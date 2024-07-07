@@ -47,7 +47,6 @@ function BoardList( ) {
         return board.ownerIds.includes(ownerIds) || board.memberIds.includes(ownerIds);
       });
       setBoards(filteredBoards);
-      console.log('MemberIds:', filteredBoards);
     });
   }, []);
 
@@ -149,8 +148,8 @@ function BoardList( ) {
   return (
     <>
       <AppBar />
-      <Container maxWidth="lg">
-        <Grid container spacing={3}>
+      <Container maxWidth="lg" >
+        <Grid container spacing={3} >
           {/* Sidebar */}
           <Grid item xs={12} sm={3}>
             <List>

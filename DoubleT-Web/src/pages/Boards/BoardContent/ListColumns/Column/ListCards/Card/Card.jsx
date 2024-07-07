@@ -30,7 +30,7 @@ function Card({ card, board, openCardInformation, setOpenCardInformation }) {
   const dndKitCardStyles = {
     touchAction: 'none',
     transform: CSS.Translate.toString(transform),
-    transition,
+    transition:'transform 0.2s ease-in-out',
     opacity: isDragging ? 0.5 : undefined,
     border: isDragging ? '1px solid #81ecec' : undefined,
   };
@@ -51,6 +51,10 @@ function Card({ card, board, openCardInformation, setOpenCardInformation }) {
       setOpenCardInformation(false);
     }
     setOpenCardInformationLocal(false);
+  };
+  const handleUpdateCard = (updatedCard) => {
+    // Update the card with new information
+    Object.assign(card, updatedCard);
   };
 
   return (
@@ -94,7 +98,7 @@ function Card({ card, board, openCardInformation, setOpenCardInformation }) {
           </CardActions>
         )}
       </MuiCard>
-      <CardInformation card={card} board={board} openCardInformation={openCardInformationLocal} onClose={handleClose} />
+      <CardInformation card={card} board={board} handleUpdateCard={handleUpdateCard} openCardInformation={openCardInformationLocal} onClose={handleClose} />
     </>
   );
 }
